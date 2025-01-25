@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ctrl+Esc: Game Over</title>
+    <meta
+      name="author"
+      content="Yago Jordas, Luana de Almeida e Apollo Borges"
+    />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Tiny5&display=swap");
+      * {
+        font-family: "Tiny5", "Courier New", Courier;
+      }
+      body {
+        background-color: rgb(50, 50, 50);
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      main {
+        width: 50%;
+        height: 80%;
+        text-align: center;
+        background-color: rgb(75, 75, 75);
+        display: grid;
+        align-content: space-around;
+        justify-content: center;
+        position: relative;
+      }
+      h1 {
+        color: brown;
+        font-size: 50px;
+      }
+      .btn {
+        display: block;
+        margin-bottom: 15px;
+        width: 150px;
+        padding: 10px;
+        justify-self: center;
+        font-weight: bold;
+      }
+      .btn:hover {
+        scale: 1.06;
+      }
+      #btnJogar {
+        font-size: 150%;
+        color: white;
+        background: none;
+        border: none;
+      }
+      .btnAdjacente {
+        font-size: 125%;
+      }
+      aside {
+        position: absolute;
+        top: 90%;
+        left: 80%;
+      }
+      #btnCreditos {
+        padding: 2.5px;
+        width: 100px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <header>
+        <p>Sobreviva ao IF</p>
+        <h1>Ctrl + Esc</h1>
+        <h2>-Game Over-</h2>
+      </header>
+      <div>
+        <button
+          id="btnJogar"
+          class="btn"
+          onclick="window.location = 'fase-01_luana/index.html';"
+        >
+          Toque para Iniciar
+        </button>
+      </div>
+      <footer>
+        <p>28.02.2025</p>
+        <h3>YLA</h3>
+      </footer>
+      <aside>
+        <button
+          id="btnCreditos"
+          class="btn"
+          onclick="window.location = 'creditos.html';"
+        >
+          Créditos
+        </button>
+      </aside>
+    </main>
+  </body>
+</html>
