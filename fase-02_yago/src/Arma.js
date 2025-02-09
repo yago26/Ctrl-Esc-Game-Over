@@ -8,21 +8,17 @@ class Arma {
   }
 }
 
-class ArmaPersonagem extends Arma {
+class ArmaJogador extends Arma {
   constructor(dano) {
     super(dano, "orange");
   }
 
-  mostrar(x, y, tamanho) {
+  mostrar(x, y) {
     push();
-    this.origem = createVector(x + tamanho / 2, y + tamanho / 2);
+    this.origem = createVector(x + 32, y + 32);
     this.sentido = createVector(mouseX - this.origem.x, mouseY - this.origem.y);
 
-    this.sentido.setMag(tamanho); // Ajuste o tamanho da linha (arma)
-
-    stroke("red");
-    strokeWeight(5);
-    line(this.origem.x, this.origem.y, mouseX, mouseY);
+    this.sentido.setMag(48); // Ajuste o tamanho da linha (arma)
 
     stroke(this.cor);
     strokeWeight(10);
@@ -41,12 +37,12 @@ class ArmaInimiga extends Arma {
     super(dano, cor);
   }
 
-  mostrar(x, y, tamanho, personagem) {
+  mostrar(x, y, tamanho, jogador) {
     push();
     this.origem = createVector(x + tamanho / 2, y + tamanho / 2);
     this.sentido = createVector(
-      personagem.x + personagem.tamanho / 2 - this.origem.x,
-      personagem.y + personagem.tamanho / 2 - this.origem.y
+      jogador.x + jogador.tamanho / 2 - this.origem.x,
+      jogador.y + jogador.tamanho / 2 - this.origem.y
     );
 
     this.sentido.setMag(tamanho); // Ajuste o tamanho da linha (arma)

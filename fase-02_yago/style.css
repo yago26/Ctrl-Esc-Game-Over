@@ -3,4 +3,5 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background-color: rgb(50, 50, 50);
 }

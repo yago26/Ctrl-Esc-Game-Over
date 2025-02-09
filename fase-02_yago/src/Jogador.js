@@ -1,31 +1,35 @@
-class Personagem {
+class Jogador {
   constructor(x, y, tamanho, velocidade) {
     this.x = x;
     this.y = y;
     this.tamanho = tamanho;
     this.velocidade = velocidade;
     this.origem, this.sentido; // vetores das armas
-    this.arma = new ArmaPersonagem(1);
-    this.vida = 5;
+    this.arma = new ArmaJogador(1);
+    this.vida = 10;
     this.dash = true;
     this.periodo = millis();
-    this.cor = "white";
     this.municao = 10;
     this.recarregando = false;
+    this.tamanhoColisao = 48;
+    this.caminhos = {
+      frente: loadImage("./assets/yago-frente.png"),
+      costas: loadImage("./assets/yago-costas.png"),
+    };
+    this.img = this.caminhos.frente;
   }
 
   mostrar() {
     if (this.vida <= 0) return;
     push();
-    fill(this.cor);
-    square(this.x, this.y, this.tamanho);
+    image(this.img, this.x, this.y, 64, 64);
     pop();
     this.arma.mostrar(this.x, this.y, this.tamanho);
-    if (yago.municao <= 0 && !this.recarregando) {
+    if (this.municao <= 0 && !this.recarregando) {
       setTimeout(() => {
         this.municao = 10;
         this.recarregando = false;
-      }, "2500");
+      }, 2500);
       this.recarregando = true;
     }
   }
@@ -39,7 +43,10 @@ class Personagem {
         velocidade *= 10;
         this.dash = false;
       }
-      if (this.y > 0) this.y -= velocidade;
+      if (this.y > 0) {
+        this.y -= velocidade;
+        this.img = this.caminhos.costas;
+      }
       if (this.y < 0) this.y = 0;
     }
     if (keyIsDown(65)) {
@@ -59,7 +66,10 @@ class Personagem {
         velocidade *= 10;
         this.dash = false;
       }
-      if (this.y + this.tamanho < height) this.y += velocidade;
+      if (this.y + this.tamanho < height) {
+        this.y += velocidade;
+        this.img = this.caminhos.frente;
+      }
       if (this.y + this.tamanho > height) this.y = height - this.tamanho;
     }
     if (keyIsDown(68)) {
@@ -79,6 +89,6 @@ class Personagem {
     this.cor = "red";
     setTimeout(() => {
       this.cor = "white";
-    }, "100");
+    }, 100);
   }
 }
