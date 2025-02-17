@@ -171,18 +171,18 @@ function keyPressed() {
   if (!jogoIniciado) {
     jogoIniciado = true;
   }
-  if (keyCode === LEFT_ARROW) {
+  if (keyCode === LEFT_ARROW || keyCode === 65) {
     jogador.mover(-3);
   }
-  if (keyCode === RIGHT_ARROW) {
+  if (keyCode === RIGHT_ARROW || keyCode === 68) {
     jogador.mover(3);
   }
 
-  if (keyCode === UP_ARROW) jogador.pular();
+  if (keyCode === UP_ARROW || keyCode === 87) jogador.pular();
 }
 
 function keyReleased() {
-  if (keyCode === LEFT_ARROW || keyCode === RIGHT_ARROW) jogador.parar();
+  if ((keyCode === LEFT_ARROW || keyCode === 65) || (keyCode === RIGHT_ARROW || keyCode === 68)) jogador.parar();
 }
 
 function colidir(a, b) {
