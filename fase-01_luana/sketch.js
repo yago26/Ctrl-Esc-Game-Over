@@ -89,7 +89,7 @@ function draw() {
     text("VOCÊ VENCEU, QUE ARRASOOO!", width / 2, height / 2);
     noLoop();
     setTimeout(() => {
-      window.location = "../fase-02_yago/index.html";
+      window.location = "./fase-02_yago/index.html";
     }, 5000);
     return;
   }
