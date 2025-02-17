@@ -109,11 +109,15 @@ function draw() {
     return;
   }
 
+  /* TELA DE VITÓRIA */
   if (jogoZerado) {
     push();
     textFont(fonte_technotribe);
     text("Zerouuuu", width / 2, height / 2);
     pop();
+    setTimeout(() => {
+      window.location = "../fase-03_apollo/index.html";
+    }, 5000);
     return;
   }
 
@@ -172,10 +176,10 @@ function draw() {
             );
           }
           inimigos.push(
-            new Guerreiro(width / 2 - width / 4, height / 3 - 48, jogador)
+            new Perseguidor(width / 2 - width / 4, height / 3 - 48, jogador)
           );
           inimigos.push(
-            new Guerreiro(width / 2 + width / 4, height / 3 - 48, jogador)
+            new Perseguidor(width / 2 + width / 4, height / 3 - 48, jogador)
           );
           break;
         case 3:

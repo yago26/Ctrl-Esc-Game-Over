@@ -13,8 +13,8 @@ class Atirador extends Inimigo {
     this.cooldown_atacar = random(1000, 2000);
 
     this.caminhos = {
-      frente: loadImage("./assets/imagens/atirador-frente.png"),
-      costas: loadImage("./assets/imagens/atirador-costas.png"),
+      frente: loadImage("./assets/imagens/inimigos/atirador/atirador-frente.png"),
+      costas: loadImage("./assets/imagens/inimigos/atirador/atirador-costas.png"),
     };
     this.img = this.caminhos.frente;
   }

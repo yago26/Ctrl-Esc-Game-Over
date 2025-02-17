@@ -28,8 +28,13 @@ class Jogador {
     this.cooldown_dash = millis();
 
     this.caminhos = {
-      frente: loadImage("./assets/imagens/yago-frente.png"),
-      costas: loadImage("./assets/imagens/yago-costas.png"),
+      frente: loadImage("./assets/imagens/jogador/yago-frente.png"),
+      direita: loadImage("./assets/imagens/jogador/yago-direita.png"),
+      esquerda: loadImage("./assets/imagens/jogador/yago-esquerda.png"),
+      costas: loadImage("./assets/imagens/jogador/yago-costas.png"),
+      /* Dano */
+      direitaDano: loadImage("./assets/imagens/jogador/yago-direita-dano.png"),
+      esquerdaDano: loadImage("./assets/imagens/jogador/yago-esquerda-dano.png"),
     };
     this.img = this.caminhos.frente;
   }
@@ -111,7 +116,10 @@ class Jogador {
         this.dash.esquerda = true;
         this.velocidadeDash.variavel = -this.velocidadeDash.fixa;
       }
-      if (this.x > 0) this.x -= this.velocidade;
+      if (this.x > 0) {
+        this.x -= this.velocidade;
+        this.img = this.caminhos.esquerda;
+      }
       if (this.x < 0) this.x = 0;
     }
     if (keyIsDown(83) || keyIsDown(40)) {
@@ -134,7 +142,10 @@ class Jogador {
         this.dash.direita = true;
         this.velocidadeDash.variavel = this.velocidadeDash.fixa;
       }
-      if (this.x + this.tamanho < width) this.x += this.velocidade;
+      if (this.x + this.tamanho < width) {
+        this.x += this.velocidade;
+        this.img = this.caminhos.direita;
+      }
       if (this.x + this.tamanho > width) this.x = width - this.tamanho;
     }
   }
