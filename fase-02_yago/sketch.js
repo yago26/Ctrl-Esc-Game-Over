@@ -1,14 +1,35 @@
-// VARIÁVEIS
-let iniciar = false;
+// VARIÁVEIS DE CONTROLE
+let jogoIniciado = false;
+let jogoZerado = false;
+
+/* VARIÁVEIS DO JOGADOR */
 let jogador;
-const tamanho = 64;
 let projeteis = [];
+const tamanho = 64;
+
+/* VARIÁVEIS DOS INIMIGOS */
 let inimigos = [];
+let cooldown_gerarInimigos = false;
 let fase = 0;
-let cooldown_gerarInimigos = true;
+
+/* IMPORTAÇÕES */
+// fontes
+let fonte_technotribe;
+let fonte_simplyRounded;
+let tamanhoTitulo = 48;
+let tamanhoTexto = 16;
+
+function preload() {
+  fonte_technotribe = loadFont(
+    "./assets/fontes/technotribe/technotribe-regular.otf"
+  );
+  fonte_simplyRounded = loadFont(
+    "./assets/fontes/simply-rounded/Simply-Rounded-Bold.ttf"
+  );
+}
 
 function setup() {
-  createCanvas(1080, 720);
+  createCanvas(1000, 720);
   jogador = new Jogador(
     width / 2 - tamanho / 2,
     height / 2 - tamanho / 2,
@@ -21,20 +42,38 @@ function setup() {
 
 function draw() {
   background(245);
-  if (!iniciar) {
+  if (!jogoIniciado) {
+    /* TELA INICIAL */
+    document.querySelector("canvas").style.cursor = "default";
     push();
-    fill("purple");
-    stroke("purple");
-    strokeWeight(2);
-    textSize(32);
-    text("...", width / 2, height / 2);
+    // TÍTULO
+    textFont(fonte_technotribe);
 
-    fill("black");
+    fill("white");
+    stroke("black");
+    textSize(tamanhoTitulo);
+    text("DESAFIO DE", width / 2, tamanhoTitulo * 2);
+
+    fill("purple");
+    textSize(tamanhoTitulo + 10);
+    text("PROGRAMAÇÃO", width / 2, tamanhoTitulo * 3);
+
+    // TEXTO
+    textFont(fonte_simplyRounded);
+
     noStroke();
-    textSize(16);
-    text("Pressione <ENTER> para iniciar...", width / 2, height / 2 + 40);
+    fill("black");
+    textSize(tamanhoTexto);
+    text(
+      "Pressione <ENTER> para iniciar...",
+      width / 2,
+      height / 2 + tamanhoTexto
+    );
+
     if (keyIsDown(13)) {
-      iniciar = true;
+      // CASO ENTER FOR PRESSIONADO
+      jogoIniciado = true;
+      document.querySelector("canvas").style.cursor = "none";
     }
     pop();
     return;
@@ -44,19 +83,25 @@ function draw() {
     /* TELA DE MORTE */
     document.body.style.cursor = "default";
     push();
-    fill(220);
-    noStroke();
-    rect(width / 4, height / 4, width / 2, height / 2 + 40);
-    fill("purple");
-    stroke("purple");
-    strokeWeight(2);
-    textSize(32);
-    text("Game Over", width / 2, height / 2);
 
-    fill("black");
+    // TÍTULO
+    textFont(fonte_technotribe);
+    stroke("black");
+    fill("purple");
+    textSize(tamanhoTitulo);
+    text("GAME OVER", width / 2, height / 2 - tamanhoTitulo);
+
+    // TEXTO
+    textFont(fonte_simplyRounded);
     noStroke();
-    textSize(16);
-    text("Pressione <ENTER> para reiniciar...", width / 2, height / 2 + 40);
+    fill("black");
+    textSize(tamanhoTexto);
+    text(
+      "Pressione <ENTER> para reiniciar...",
+      width / 2,
+      height / 2 + tamanhoTexto
+    );
+
     if (keyIsDown(13)) {
       reiniciar();
     }
@@ -64,19 +109,50 @@ function draw() {
     return;
   }
 
-  /* MANIPULAÇÃO DA DISPOSIÇÃO DO CURSOR */
-  document.body.style.cursor =
-    mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height
-      ? "none"
-      : "default";
+  if (jogoZerado) {
+    push();
+    textFont(fonte_technotribe);
+    text("Zerouuuu", width / 2, height / 2);
+    pop();
+    return;
+  }
+
+  /* BARRAS INFORMATIVAS */
+  push();
+  textFont(fonte_technotribe);
+  textAlign(LEFT, TOP);
+
+  rect(0, height - 100, width / 4 + 40, 100);
+
+  // VIDA
+  fill(color(162, 255, 182));
+  stroke("black");
+  text(`HP ${jogador.vida}/10`, 20, height - 80);
+
+  stroke(color(162, 255, 182));
+  rect(110, height - 80, map(jogador.vida, 0, 10, 0, width / 4 - 90), 20);
+
+  // MUNIÇÃO
+  fill("orange");
+  stroke("black");
+  text(
+    `MP ${jogador.municao === 0 ? "recarregando..." : jogador.municao + "/10"}`,
+    20,
+    height - 40
+  );
+
+  stroke("orange");
+  rect(110, height - 40, map(jogador.municao, 0, 10, 0, width / 4 - 90), 20);
+
+  pop();
 
   /* FUNÇÕES BÁSICAS DO JOGADOR */
   jogador.mostrar();
   jogador.mover();
 
   /* GERAÇÃO DE INIMIGOS */
-  if (inimigos.length === 0 && cooldown_gerarInimigos) {
-    cooldown_gerarInimigos = false;
+  if (inimigos.length === 0 && !cooldown_gerarInimigos) {
+    cooldown_gerarInimigos = true;
     setTimeout(() => {
       jogador.vida = 10;
       jogador.municao = 10;
@@ -106,11 +182,48 @@ function draw() {
           inimigos.push(new Boss(width / 2, height / 2, jogador));
           break;
         default:
+          jogoZerado = true;
+          break;
       }
-      cooldown_gerarInimigos = true;
-    }, 1500);
+      cooldown_gerarInimigos = false;
+    }, 2500);
   }
 
+  // TÍTULOS DAS FASES
+  if (cooldown_gerarInimigos) {
+    push();
+    // AVISO DE SALVAMENTO DE PROGRESSO
+    textFont(fonte_simplyRounded);
+    textAlign(LEFT, CENTER);
+    text("Salvando progresso...", 20, 20);
+
+    // CONFIGURAÇÕES DOS TÍTULOS
+    textAlign(CENTER, CENTER);
+    textSize(tamanhoTitulo);
+    textFont(fonte_technotribe);
+    stroke("black");
+    switch (fase) {
+      case 0:
+        fill("yellow");
+        text("Fase 1/3: Atiradores", width / 2, height / 2 - tamanhoTitulo);
+        break;
+      case 1:
+        fill("orange");
+        text(
+          "Fase 2/3: Atiradores e Perseguidores",
+          width / 2,
+          height / 2 - tamanhoTitulo
+        );
+        break;
+      case 2:
+        fill("red");
+        text("Fase 3/3: Chefão Antôin", width / 2, height / 2 - tamanhoTitulo);
+        break;
+    }
+    pop();
+  }
+
+  /* ATAQUE AO INIMIGO */
   let projeteisRemover = [];
   for (let projetil of projeteis) {
     projetil.mostrar();
@@ -146,45 +259,36 @@ function draw() {
   for (let inimigo of inimigos) {
     inimigo.mostrar();
     inimigo.mover();
-    if (millis() - inimigo.periodo >= inimigo.periodoAtaque) {
+    if (millis() - inimigo.cronometro_ultimoAtaque >= inimigo.cooldown_atacar) {
       inimigo.atacar();
-      inimigo.periodo = millis();
+      inimigo.cronometro_ultimoAtaque = millis();
     }
   }
 
   /* DASH DO JOGADOR */
-  if (jogador.dash) {
-    jogador.periodo = millis();
+  if (jogador.dash.geral) {
+    jogador.cooldown_dash = millis();
   }
 
+  push();
   textSize(18);
+  textFont(fonte_simplyRounded);
   text("Dash", width - 40, height - 40);
   text(
     `${
-      millis() - jogador.periodo <= 10
+      millis() - jogador.cooldown_dash <= 10
         ? "true"
-        : ((millis() - jogador.periodo) / 1000).toFixed(1) + "s"
+        : ((millis() - jogador.cooldown_dash) / 1000).toFixed(1) + "s"
     }`,
     width - 40,
     height - 20
   );
-
-  if (millis() - jogador.periodo >= 500) {
-    jogador.periodo = millis();
-    jogador.dash = true;
-  }
-
-  /* BARRAS INFORMATIVAS */
   push();
-  // VIDA
-  stroke(color(162, 255, 182));
-  fill(color(162, 255, 182));
-  rect(20, height - 80, map(jogador.vida, 0, 10, 0, width / 4), 20);
-  // MUNIÇÃO
-  stroke("orange");
-  fill("orange");
-  rect(20, height - 40, map(jogador.municao, 0, 10, 0, width / 4), 20);
-  pop();
+
+  if (millis() - jogador.cooldown_dash >= 500) {
+    jogador.cooldown_dash = millis();
+    jogador.dash.geral = true;
+  }
 
   /* MIRA */
   push();
@@ -228,7 +332,7 @@ function reiniciar() {
     tamanho,
     5
   );
-  fase = 0;
+  fase = fase - 1;
   inimigos = [];
   projeteis = [];
 }

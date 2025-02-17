@@ -1,66 +1,62 @@
 class Personagem {
-  constructor() {
-    this.tamanho = 16;
-    this.x = 0;
-    this.y = height - this.tamanho;
-    this.velocidade = 5;
-    this.nome = "luanao";
-    this.movido = false;
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.largura = 38;
+    this.altura = 38;
+    this.velocidadeX = 0;
+    this.velocidadeY = 0;
+    this.sprite = imagemEsquerda;
+  }
 
-    this.velocidadePulo = -12; // Velocidade inicial de pulo (valor negativo para subir)
-    this.gravidade = 0.5; // Aceleração de gravidade (quão rápido o personagem cai)
-    this.velocidadeAtual = 0; // Velocidade de movimento no eixo Y
-    this.saltou = false; // Controla se o personagem está no ar ou no chão
-    this.vivo = true;
-    this.dash = false;
+  mover(direcao) {
+    this.velocidadeX = direcao * 1.5;
+    this.sprite = direcao > 0 ? imagemEsquerda : imagemDireita;
+  }
+
+  parar() {
+    this.velocidadeX = 0;
+  }
+
+  pular() {
+    this.velocidadeY = -4;
+  }
+
+  atualizar() {
+    this.velocidadeY += gravidade;
+    this.x = constrain(this.x + this.velocidadeX, 0, width - this.largura);
+    this.y = constrain(this.y + this.velocidadeY, 0, height - this.altura);
+
+    for (let p of plataformas) {
+      if (colidir(this, p)) {
+        // Verificação de colisão para cima
+        if (this.y + this.altura > p.y && this.y < p.y) {
+          this.y = p.y - this.altura;
+          this.velocidadeY = 0;
+        }
+        // Verificação de colisão para baixo
+        if (this.y < p.y + p.altura && this.y + this.altura > p.y + p.altura) {
+          this.y = p.y + p.altura;
+          this.velocidadeY = 0;
+        }
+        // Verificação de colisão para esquerda
+        if (this.x + this.largura > p.x && this.x < p.x) {
+          this.x = p.x - this.largura;
+          this.velocidadeX = 0;
+        }
+        // Verificação de colisão para direita
+        if (
+          this.x < p.x + p.largura &&
+          this.x + this.largura > p.x + p.largura
+        ) {
+          this.x = p.x + p.largura;
+          this.velocidadeX = 0;
+        }
+      }
+    }
   }
 
   mostrar() {
-    if (this.vivo) {
-      square(this.x, this.y, this.tamanho);
-    }
-  }
-
-  mover() {
-    if (!this.vivo) return;
-    if (keyCode === 0) return;
-    let retorno = false;
-    // Movimento lateral (A e D)
-    if (keyIsDown(65)) {
-      // A
-      if (this.x > 0) this.x -= this.velocidade;
-      retorno = true;
-    }
-    if (keyIsDown(68)) {
-      // D
-      if (this.x + this.tamanho < width) this.x += this.velocidade;
-      retorno = true;
-    }
-
-    // Lógica de pulo
-    if (this.saltou) {
-      this.velocidadeAtual += this.gravidade; // Aplica a gravidade
-      this.y += this.velocidadeAtual; // Move o personagem com a velocidade atual
-
-      // Quando o personagem atinge o solo
-      if (this.y >= height - this.tamanho) {
-        this.y = height - this.tamanho; // Fixa a posição do personagem no chão
-        this.saltou = false; // O personagem não está mais no ar
-        this.velocidadeAtual = 0; // Reseta a velocidade de queda
-      }
-    }
-
-    // Pulo
-    if (keyIsDown(87) && !this.saltou) {
-      // W
-      this.saltou = true;
-      this.velocidadeAtual = this.velocidadePulo; // Aplica a velocidade inicial do pulo
-      retorno = true;
-    }
-
-    if (keyIsDown(32) && !this.dash) {
-      this.dash = true;
-    }
-    return retorno;
+    image(this.sprite, this.x, this.y, this.largura, this.altura);
   }
 }
