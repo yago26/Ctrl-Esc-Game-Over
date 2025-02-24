@@ -6,9 +6,9 @@ class Jogador {
     this.velocidade = velocidade;
 
     this.vida = 10;
-    this.tamanhoColisao = 48;
+    this.tamanhoColisao = { w: 48, h: 64 };
 
-    this.arma = new ArmaJogador(1);
+    this.arma = new Arma(1, "orange");
     this.origem, this.sentido; // vetores das armas
     this.municao = 10;
     this.recarregando = false;
@@ -27,24 +27,40 @@ class Jogador {
     this.freioDash = 2;
     this.cooldown_dash = millis();
 
-    this.caminhos = {
-      frente: loadImage("./assets/imagens/jogador/yago-frente.png"),
-      direita: loadImage("./assets/imagens/jogador/yago-direita.png"),
-      esquerda: loadImage("./assets/imagens/jogador/yago-esquerda.png"),
-      costas: loadImage("./assets/imagens/jogador/yago-costas.png"),
+    this.sprites = {
+      frente: loadImage("./assets/sprites/jogador/yago-frente.png"),
+      direita: loadImage("./assets/sprites/jogador/yago-direita.png"),
+      esquerda: loadImage("./assets/sprites/jogador/yago-esquerda.png"),
+      costas: loadImage("./assets/sprites/jogador/yago-costas.png"),
       /* Dano */
-      direitaDano: loadImage("./assets/imagens/jogador/yago-direita-dano.png"),
-      esquerdaDano: loadImage("./assets/imagens/jogador/yago-esquerda-dano.png"),
+      direitaDano: loadImage("./assets/sprites/jogador/yago-direita-dano.png"),
+      esquerdaDano: loadImage(
+        "./assets/sprites/jogador/yago-esquerda-dano.png"
+      ),
+      /* Perdeu */
+      perdeu: loadImage("./assets/sprites/jogador/yago-perdeu.png"),
     };
-    this.img = this.caminhos.frente;
+    this.img = this.sprites.frente;
+
+    this.audios = {
+      dash: loadSound("./assets/audios/jogador/som-dash.mp3"),
+      projetil: loadSound("./assets/audios/jogador/som-projetil.mp3"),
+      receberDano: loadSound("./assets/audios/jogador/som-dano.mp3"),
+      perdeu: loadSound("./assets/audios/jogador/som-perdeu.mp3"),
+    };
+
+    this.audios.dash.setVolume(0.035);
+    this.audios.projetil.setVolume(0.035);
+    this.audios.receberDano.setVolume(0.035);
+    this.audios.perdeu.setVolume(0.3);
   }
 
   mostrar() {
-    if (this.vida <= 0) return;
-    push();
+    if (this.vida <= 0) {
+      this.img = this.sprites.perdeu;
+    }
     image(this.img, this.x, this.y, 64, 64);
-    pop();
-    this.arma.mostrar(this.x, this.y, this.tamanho);
+    if (this.vida > 0) this.arma.mostrar(this.x, this.y, this.tamanho);
     if (this.municao <= 0 && !this.recarregando) {
       setTimeout(() => {
         this.municao = 10;
@@ -102,10 +118,11 @@ class Jogador {
         this.dash.geral = false;
         this.dash.cima = true;
         this.velocidadeDash.variavel = -this.velocidadeDash.fixa;
+        this.audios.dash.play();
       }
       if (this.y > 0) {
         this.y -= this.velocidade;
-        this.img = this.caminhos.costas;
+        this.img = this.sprites.costas;
       }
       if (this.y < 0) this.y = 0;
     }
@@ -115,10 +132,11 @@ class Jogador {
         this.dash.geral = false;
         this.dash.esquerda = true;
         this.velocidadeDash.variavel = -this.velocidadeDash.fixa;
+        this.audios.dash.play();
       }
       if (this.x > 0) {
         this.x -= this.velocidade;
-        this.img = this.caminhos.esquerda;
+        this.img = this.sprites.esquerda;
       }
       if (this.x < 0) this.x = 0;
     }
@@ -128,10 +146,11 @@ class Jogador {
         this.dash.geral = false;
         this.dash.baixo = true;
         this.velocidadeDash.variavel = this.velocidadeDash.fixa;
+        this.audios.dash.play();
       }
       if (this.y + this.tamanho < height) {
         this.y += this.velocidade;
-        this.img = this.caminhos.frente;
+        this.img = this.sprites.frente;
       }
       if (this.y + this.tamanho > height) this.y = height - this.tamanho;
     }
@@ -141,10 +160,11 @@ class Jogador {
         this.dash.geral = false;
         this.dash.direita = true;
         this.velocidadeDash.variavel = this.velocidadeDash.fixa;
+        this.audios.dash.play();
       }
       if (this.x + this.tamanho < width) {
         this.x += this.velocidade;
-        this.img = this.caminhos.direita;
+        this.img = this.sprites.direita;
       }
       if (this.x + this.tamanho > width) this.x = width - this.tamanho;
     }
@@ -152,9 +172,6 @@ class Jogador {
 
   receberDano() {
     this.vida--;
-    this.cor = "red";
-    setTimeout(() => {
-      this.cor = "white";
-    }, 100);
+    this.audios.receberDano.play();
   }
 }

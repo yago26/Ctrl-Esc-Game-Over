@@ -43,15 +43,15 @@ let somSusto;
 let somAmbiente;
 
 function preload() {
-  imagemFundo = loadImage("./assets/imagens/pixil-frame-0 (4).png");
-  imagemPlat = loadImage("./assets/imagens/plat0.png");
-  imagemPor = loadImage("./assets/imagens/porta.png");
+  imagemFundo = loadImage("./assets/sprites/cenario/fundo.png");
+  imagemPlat = loadImage("./assets/sprites/cenario/estante.png");
+  imagemPor = loadImage("./assets/sprites/cenario/porta.png");
 
-  imagemEsquerda = loadImage("./assets/imagens/pixil-frame-0.png");
-  imagemDireita = loadImage("./assets/imagens/luanao.png");
+  imagemEsquerda = loadImage("./assets/sprites/jogador/luanao-esquerda.png");
+  imagemDireita = loadImage("./assets/sprites/jogador/luanao-direita.png");
 
-  imagemInimigo = loadImage("./assets/imagens/lucia.png");
-  imagemProj = loadImage("./assets/imagens/projetil.png");
+  imagemInimigo = loadImage("./assets/sprites/inimigo/lucia.png");
+  imagemProj = loadImage("./assets/sprites/inimigo/projetil.png");
 
   somSusto = loadSound("./assets/audios/grito_mujer9-86834.mp3");
   somAmbiente = loadSound("./assets/audios/horror-spooky-piano-254402.mp3");
@@ -65,6 +65,7 @@ function draw() {
   }
 
   background(imagemFundo);
+
   for (let p of plataformas) p.mostrar();
 
   let plataformaPorta = plataformas.find(
@@ -89,18 +90,33 @@ function draw() {
     text("VOCÊ VENCEU, QUE ARRASOOO!", width / 2, height / 2);
     noLoop();
     setTimeout(() => {
-      window.location = "/Ctrl-Esc-Game-Over/fase-02_yago/index.html";
+      window.location = "../fase-02_yago/index.html";
     }, 5000);
     return;
   }
 
   if (!jogoIniciado) {
-    fill(255);
-    textSize(30);
-    textAlign(CENTER);
-    text("", width / 2, height / 2);
-    jogador.mostrar();
-    inimigo.mostrar();
+    push();
+    textAlign(CENTER, CENTER);
+    fill("white");
+    stroke("black");
+    textSize(48);
+    text("BATALHA", width / 2, 48 * 2);
+
+    fill("brown");
+    textSize(58);
+    text("LITERÁRIA", width / 2, 48 * 3);
+
+    fill("black");
+    stroke("black");
+    textSize(16);
+    text("Pressione <ENTER> para iniciar...", width / 2, height / 2 + 16);
+
+    if (keyIsDown(13)) {
+      jogoIniciado = true;
+    }
+    pop();
+    return;
   } else if (!jogoEncerrado) {
     jogador.atualizar();
     jogador.mostrar();
@@ -168,9 +184,6 @@ function draw() {
 }
 
 function keyPressed() {
-  if (!jogoIniciado) {
-    jogoIniciado = true;
-  }
   if (keyCode === LEFT_ARROW || keyCode === 65) {
     jogador.mover(-3);
   }
@@ -182,7 +195,13 @@ function keyPressed() {
 }
 
 function keyReleased() {
-  if ((keyCode === LEFT_ARROW || keyCode === 65) || (keyCode === RIGHT_ARROW || keyCode === 68)) jogador.parar();
+  if (
+    keyCode === LEFT_ARROW ||
+    keyCode === 65 ||
+    keyCode === RIGHT_ARROW ||
+    keyCode === 68
+  )
+    jogador.parar();
 }
 
 function colidir(a, b) {

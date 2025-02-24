@@ -20,6 +20,6 @@ class Inimigo {
     this.cor = "red";
     setTimeout(() => {
       this.cor = this.corPrincipal;
-    }, "100");
+    }, 100);
   }
 }

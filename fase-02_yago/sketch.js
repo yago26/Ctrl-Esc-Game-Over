@@ -19,6 +19,14 @@ let fonte_simplyRounded;
 let tamanhoTitulo = 48;
 let tamanhoTexto = 16;
 
+/* SONS */
+let trilhaSonora;
+let somBossAntoin;
+let somEstrondo;
+
+/* OUTROS */
+let tamanhoBarra = 20;
+
 function preload() {
   fonte_technotribe = loadFont(
     "./assets/fontes/technotribe/technotribe-regular.otf"
@@ -26,10 +34,19 @@ function preload() {
   fonte_simplyRounded = loadFont(
     "./assets/fontes/simply-rounded/Simply-Rounded-Bold.ttf"
   );
+  trilhaSonora = loadSound("./assets/audios/geral/trilha-sonora.mp3");
+  trilhaSonora.setVolume(0.1);
+  somBossAntoin = loadSound("./assets/audios/inimigos/som-antoin.mp3");
+  somBossAntoin.setVolume(0.3);
+  somEstrondo = loadSound("./assets/audios/inimigos/som-estrondo.mp3");
+  somEstrondo.setVolume(0.025);
 }
+
+let canvas;
 
 function setup() {
   createCanvas(1000, 720);
+  canvas = document.querySelector("canvas");
   jogador = new Jogador(
     width / 2 - tamanho / 2,
     height / 2 - tamanho / 2,
@@ -44,7 +61,7 @@ function draw() {
   background(245);
   if (!jogoIniciado) {
     /* TELA INICIAL */
-    document.querySelector("canvas").style.cursor = "default";
+    canvas.style.cursor = "default";
     push();
     // TÍTULO
     textFont(fonte_technotribe);
@@ -58,12 +75,28 @@ function draw() {
     textSize(tamanhoTitulo + 10);
     text("PROGRAMAÇÃO", width / 2, tamanhoTitulo * 3);
 
+    line(
+      width / 2 - width / 4,
+      height / 2 - height / 4.5,
+      width / 2 + width / 4,
+      height / 2 - height / 4.5
+    );
+
     // TEXTO
     textFont(fonte_simplyRounded);
 
+    fill("lightgray");
+    stroke("lightgray");
+    textSize(tamanhoTexto);
+    text("Ctrl + Esc: Game Over", width / 2, height / 2 - height / 5);
+
+    stroke("black");
+    textSize(tamanhoTexto);
+    text("© Copyright YJ, Yago Jordas", width / 2, height - tamanhoTexto * 2);
+
     noStroke();
     fill("black");
-    textSize(tamanhoTexto);
+    textSize(tamanhoTexto + 2);
     text(
       "Pressione <ENTER> para iniciar...",
       width / 2,
@@ -73,45 +106,17 @@ function draw() {
     if (keyIsDown(13)) {
       // CASO ENTER FOR PRESSIONADO
       jogoIniciado = true;
-      document.querySelector("canvas").style.cursor = "none";
+      canvas.style.cursor = "none";
+      trilhaSonora.loop();
     }
     pop();
     return;
   }
 
-  if (jogador.vida <= 0) {
-    /* TELA DE MORTE */
-    document.body.style.cursor = "default";
-    push();
-
-    // TÍTULO
-    textFont(fonte_technotribe);
-    stroke("black");
-    fill("purple");
-    textSize(tamanhoTitulo);
-    text("GAME OVER", width / 2, height / 2 - tamanhoTitulo);
-
-    // TEXTO
-    textFont(fonte_simplyRounded);
-    noStroke();
-    fill("black");
-    textSize(tamanhoTexto);
-    text(
-      "Pressione <ENTER> para reiniciar...",
-      width / 2,
-      height / 2 + tamanhoTexto
-    );
-
-    if (keyIsDown(13)) {
-      reiniciar();
-    }
-    pop();
-    return;
-  }
-
-  /* TELA DE VITÓRIA */
   if (jogoZerado) {
+    /* TELA DE VITÓRIA */
     push();
+    textSize(tamanhoTitulo);
     textFont(fonte_technotribe);
     text("Zerouuuu", width / 2, height / 2);
     pop();
@@ -121,34 +126,94 @@ function draw() {
     return;
   }
 
-  /* BARRAS INFORMATIVAS */
-  push();
-  textFont(fonte_technotribe);
-  textAlign(LEFT, TOP);
+  // TREMOR ATAQUE ESPECIAL BOSS
+  if (inimigos[0] && jogador.vida >= 0) {
+    if (inimigos[0].hasOwnProperty("ataquesEspeciais")) {
+      if (inimigos[0].ataquesEspeciais.geral) {
+        let deslocamentoX = random(-8, 8);
+        let deslocamentoY = random(-8, 8);
+        translate(deslocamentoX, deslocamentoY);
+        somEstrondo.play();
+      }
+    }
+  }
 
-  rect(0, height - 100, width / 4 + 40, 100);
+  if (jogador.vida > 0) {
+    /* BARRAS INFORMATIVAS */
+    push();
+    textAlign(CENTER, CENTER);
+    textFont(fonte_technotribe);
+    textAlign(LEFT, TOP);
 
-  // VIDA
-  fill(color(162, 255, 182));
-  stroke("black");
-  text(`HP ${jogador.vida}/10`, 20, height - 80);
+    translate(0, tamanhoBarra);
 
-  stroke(color(162, 255, 182));
-  rect(110, height - 80, map(jogador.vida, 0, 10, 0, width / 4 - 90), 20);
+    // VIDA
+    textSize(tamanhoTexto);
+    fill(color(162, 255, 182));
+    stroke("black");
+    text(`HP`, width - tamanhoBarra * 2, height / 2);
+    textSize(tamanhoTexto - 4);
+    text(
+      `${jogador.vida}/10`,
+      width - tamanhoBarra * (jogador.vida < 10 ? 2 : 2.25),
+      height / 2 + tamanhoBarra
+    );
 
-  // MUNIÇÃO
-  fill("orange");
-  stroke("black");
-  text(
-    `MP ${jogador.municao === 0 ? "recarregando..." : jogador.municao + "/10"}`,
-    20,
-    height - 40
-  );
+    stroke(color(162, 255, 182));
+    rect(
+      width - tamanhoBarra * 2,
+      height / 2 + tamanhoBarra * 3,
+      tamanhoBarra,
+      map(jogador.vida, 0, 10, 0, height / 4)
+    );
 
-  stroke("orange");
-  rect(110, height - 40, map(jogador.municao, 0, 10, 0, width / 4 - 90), 20);
+    // MUNIÇÃO
+    textSize(tamanhoTexto);
+    fill("orange");
+    stroke("black");
+    text(`MP`, width - tamanhoBarra * 4.25, height / 2);
+    textSize(tamanhoTexto - 4);
+    text(
+      `${jogador.municao === 0 ? "..." : jogador.municao + "/10"}`,
+      width - tamanhoBarra * (jogador.municao < 10 ? 4.25 : 4.5),
+      height / 2 + tamanhoBarra
+    );
 
-  pop();
+    stroke("orange");
+    rect(
+      width - tamanhoBarra * 4,
+      height / 2 + tamanhoBarra * 3,
+      tamanhoBarra,
+      map(jogador.municao, 0, 10, 0, height / 4)
+    );
+
+    pop();
+
+    /* DASH DO JOGADOR */
+    if (jogador.dash.geral) {
+      jogador.cooldown_dash = millis();
+    }
+
+    push();
+    textSize(18);
+    textFont(fonte_simplyRounded);
+    text("Dash", width - tamanhoBarra * 2.5, height - tamanhoBarra * 3);
+    text(
+      `${
+        millis() - jogador.cooldown_dash <= 10
+          ? "true"
+          : ((millis() - jogador.cooldown_dash) / 1000).toFixed(1) + "s"
+      }`,
+      width - tamanhoBarra * 2.5,
+      height - tamanhoBarra * 2
+    );
+    push();
+
+    if (millis() - jogador.cooldown_dash >= 500) {
+      jogador.cooldown_dash = millis();
+      jogador.dash.geral = true;
+    }
+  }
 
   /* FUNÇÕES BÁSICAS DO JOGADOR */
   jogador.mostrar();
@@ -178,12 +243,14 @@ function draw() {
           inimigos.push(
             new Perseguidor(width / 2 - width / 4, height / 3 - 48, jogador)
           );
+          inimigos.push(new Perseguidor(width / 2, height / 3 - 48, jogador));
           inimigos.push(
             new Perseguidor(width / 2 + width / 4, height / 3 - 48, jogador)
           );
           break;
         case 3:
           inimigos.push(new Boss(width / 2, height / 2, jogador));
+          somBossAntoin.loop();
           break;
         default:
           jogoZerado = true;
@@ -228,22 +295,38 @@ function draw() {
   }
 
   /* ATAQUE AO INIMIGO */
+  let inimigosRemover;
   let projeteisRemover = [];
   for (let projetil of projeteis) {
     projetil.mostrar();
     projetil.mover();
+    inimigosRemover = [];
     inimigos.forEach((inimigo) => {
       if (
-        dist(inimigo.x + 24, inimigo.y + 32, projetil.x, projetil.y) <=
-        inimigo.tamanho + 8 /* raio da bala */
+        colisaoCirculoRetangulo(
+          projetil.x,
+          projetil.y,
+          projetil.raio,
+          inimigo.x + (inimigo.tamanho - inimigo.tamanhoColisao.w) / 2,
+          inimigo.y,
+          inimigo.tamanhoColisao.w,
+          inimigo.tamanhoColisao.h
+        )
       ) {
         inimigo.receberDano();
         if (inimigo.vida <= 0) {
-          inimigos.splice(inimigos.indexOf(inimigo), 1);
+          inimigosRemover.push(inimigo);
+          if (inimigo.hasOwnProperty("ataquesEspeciais")) {
+            somBossAntoin.stop();
+          }
         }
         projeteisRemover.push(projetil);
       }
     });
+    // Remover inimigos após a iteração
+    for (let inimigo of inimigosRemover) {
+      inimigos.splice(inimigos.indexOf(inimigo), 1);
+    }
     if (
       projetil.x < 0 ||
       projetil.x > width ||
@@ -269,50 +352,65 @@ function draw() {
     }
   }
 
-  /* DASH DO JOGADOR */
-  if (jogador.dash.geral) {
-    jogador.cooldown_dash = millis();
+  if (jogador.vida > 0) {
+    /* MIRA */
+    push();
+    fill(255, 50, 50);
+    stroke(255, 50, 50);
+    // Bolinha central
+    circle(mouseX, mouseY, 5);
+
+    noFill();
+    strokeWeight(3);
+    stroke("purple");
+    // Bolinha externa
+    circle(mouseX, mouseY, 25);
+    // linhas horizontais
+    line(mouseX - 20, mouseY, mouseX - 8, mouseY);
+    line(mouseX + 20, mouseY, mouseX + 8, mouseY);
+    // linhas verticais
+    line(mouseX, mouseY - 20, mouseX, mouseY - 8);
+    line(mouseX, mouseY + 20, mouseX, mouseY + 8);
+    pop();
   }
 
-  push();
-  textSize(18);
-  textFont(fonte_simplyRounded);
-  text("Dash", width - 40, height - 40);
-  text(
-    `${
-      millis() - jogador.cooldown_dash <= 10
-        ? "true"
-        : ((millis() - jogador.cooldown_dash) / 1000).toFixed(1) + "s"
-    }`,
-    width - 40,
-    height - 20
-  );
-  push();
+  if (jogador.vida <= 0) {
+    /* TELA DE MORTE */
+    if (jogador.vida === 0) {
+      jogador.audios.perdeu.play();
+      jogador.vida--;
+    }
+    trilhaSonora.stop();
+    somBossAntoin.stop();
 
-  if (millis() - jogador.cooldown_dash >= 500) {
-    jogador.cooldown_dash = millis();
-    jogador.dash.geral = true;
+    canvas.style.cursor = "default";
+    push();
+
+    // TÍTULO
+    textFont(fonte_technotribe);
+    stroke("black");
+    fill("purple");
+    textSize(tamanhoTitulo);
+    text("GAME OVER", width / 2, height / 2 - tamanhoTitulo);
+
+    // TEXTO
+    textFont(fonte_simplyRounded);
+    noStroke();
+    fill("black");
+    textSize(tamanhoTexto);
+    text(
+      "Pressione <ENTER> para reiniciar...",
+      width / 2,
+      height / 2 + tamanhoTexto
+    );
+
+    if (keyIsDown(13)) {
+      reiniciar();
+      canvas.style.cursor = "none";
+      trilhaSonora.loop();
+    }
+    pop();
   }
-
-  /* MIRA */
-  push();
-  fill(255, 50, 50);
-  stroke(255, 50, 50);
-  // Bolinha central
-  circle(mouseX, mouseY, 5);
-
-  noFill();
-  strokeWeight(3);
-  stroke("purple");
-  // Bolinha externa
-  circle(mouseX, mouseY, 25);
-  // linhas horizontais
-  line(mouseX - 20, mouseY, mouseX - 8, mouseY);
-  line(mouseX + 20, mouseY, mouseX + 8, mouseY);
-  // linhas verticais
-  line(mouseX, mouseY - 20, mouseX, mouseY - 8);
-  line(mouseX, mouseY + 20, mouseX, mouseY + 8);
-  pop();
 }
 
 function mouseClicked() {
@@ -326,7 +424,32 @@ function mouseClicked() {
       "orange"
     )
   );
+  jogador.audios.projetil.play();
   jogador.municao--;
+}
+
+function keyPressed() {
+  if (keyIsDown(SHIFT)) {
+    if (keyIsDown(49)) {
+      inimigos = [];
+      fase = 0;
+    }
+    if (keyIsDown(50)) {
+      inimigos = [];
+      fase = 1;
+    }
+    if (keyIsDown(51)) {
+      inimigos = [];
+      fase = 2;
+    }
+    if (keyIsDown(52)) {
+      inimigos = [];
+      fase = 3;
+    }
+    if (keyIsDown(53)) {
+      window.location = "../fase-03_apollo/index.html";
+    }
+  }
 }
 
 function reiniciar() {
@@ -339,4 +462,32 @@ function reiniciar() {
   fase = fase - 1;
   inimigos = [];
   projeteis = [];
+}
+
+function colisaoCirculoRetangulo(
+  circuloPosX,
+  circuloPosY,
+  circuloRaio,
+  retanguloPosX,
+  retanguloPosY,
+  retanguloLargura,
+  retanguloAltura
+) {
+  // Encontrar o ponto mais próximo do círculo dentro do retângulo
+  let closestX = constrain(
+    circuloPosX,
+    retanguloPosX,
+    retanguloPosX + retanguloLargura
+  );
+  let closestY = constrain(
+    circuloPosY,
+    retanguloPosY,
+    retanguloPosY + retanguloAltura
+  );
+
+  // Calcular a distância entre o ponto mais próximo e o centro do círculo
+  let distancia = dist(circuloPosX, circuloPosY, closestX, closestY);
+
+  // Se a distância for menor ou igual ao raio, há colisão
+  return distancia <= circuloRaio;
 }

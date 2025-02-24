@@ -5,14 +5,13 @@ class Projetil {
     this.velocidade = velocidade;
     this.cor = cor;
     this.visivel = true;
-    this.raio = 16;
   }
 
   mostrar() {
     if (!this.visivel) return;
     push();
     fill(this.cor);
-    circle(this.x, this.y, this.raio);
+    circle(this.x, this.y, 16);
     pop();
   }
 

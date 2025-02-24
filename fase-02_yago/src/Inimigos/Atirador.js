@@ -5,23 +5,32 @@ class Atirador extends Inimigo {
     this.vy = random(-8, 8);
     this.cooldown_mover = millis();
 
-    this.tamanhoColisao = 48;
+    this.tamanhoColisao = { w: 48, h: 64 };
 
-    this.arma = new ArmaInimiga(1, "blue");
+    this.arma = new Arma(1, "blue");
     this.projeteis = [];
     this.cronometro_ultimoAtaque = millis();
     this.cooldown_atacar = random(1000, 2000);
 
-    this.caminhos = {
-      frente: loadImage("./assets/imagens/inimigos/atirador/atirador-frente.png"),
-      costas: loadImage("./assets/imagens/inimigos/atirador/atirador-costas.png"),
+    this.sprites = {
+      frente: loadImage(
+        "./assets/sprites/inimigos/atirador/atirador-frente.png"
+      ),
+      direita: loadImage(
+        "./assets/sprites/inimigos/atirador/atirador-direita.png"
+      ),
+      esquerda: loadImage(
+        "./assets/sprites/inimigos/atirador/atirador-esquerda.png"
+      ),
+      costas: loadImage(
+        "./assets/sprites/inimigos/atirador/atirador-costas.png"
+      ),
     };
-    this.img = this.caminhos.frente;
+    this.img = this.sprites.frente;
   }
 
   mostrar() {
     if (this.vida <= 0) return;
-    if (this.jogador.vida <= 0) return;
 
     push();
     /* BARRA INFORMATIVA - VIDA */
@@ -32,24 +41,28 @@ class Atirador extends Inimigo {
 
     push();
     /* MOSTRANDO COMPONENTES */
-    image(this.img, this.x, this.y, 64, 64);
-    this.arma.mostrar(this.x, this.y, this.tamanhoColisao, this.jogador);
+    image(this.img, this.x, this.y, this.tamanho, this.tamanho);
+    this.arma.mostrar(this.x, this.y, this.tamanho, this.jogador, true);
 
     /* CASO */
+    let projeteisRemover = [];
     for (let projetil of this.projeteis) {
       projetil.mostrar();
       projetil.mover();
       if (
-        dist(
-          this.jogador.x + 24,
-          this.jogador.y + 32,
+        colisaoCirculoRetangulo(
           projetil.x,
-          projetil.y
-        ) <=
-        this.jogador.tamanho + 8 /* raio da bala */
+          projetil.y,
+          projetil.raio,
+          this.jogador.x +
+            (this.jogador.tamanho - this.jogador.tamanhoColisao.w) / 2,
+          this.jogador.y,
+          this.jogador.tamanhoColisao.w,
+          this.jogador.tamanhoColisao.h
+        )
       ) {
         this.jogador.receberDano();
-        this.projeteis.splice(this.projeteis.indexOf(projetil), 1);
+        projeteisRemover.push(projetil);
       }
       if (
         projetil.x < 0 ||
@@ -57,8 +70,11 @@ class Atirador extends Inimigo {
         projetil.y < 0 ||
         projetil.y > height
       ) {
-        this.projeteis.splice(this.projeteis.indexOf(projetil), 1);
+        projeteisRemover.push(projetil);
       }
+    }
+    for (let projetil of projeteisRemover) {
+      this.projeteis.splice(this.projeteis.indexOf(projetil), 1);
     }
     pop();
   }
@@ -81,20 +97,29 @@ class Atirador extends Inimigo {
     if (this.x + this.tamanho > width) {
       this.x = width - this.tamanho;
       this.vx *= -1;
-    } else {
-      if (millis() - this.cooldown_mover >= 1500) {
-        this.cooldown_mover = millis();
-        this.vx = random(-5, 5);
-        this.vy = random(-8, 8);
-      }
-      if (Math.sign(this.vy) === 1) {
-        this.img = this.caminhos.frente;
-      } else {
-        this.img = this.caminhos.costas;
-      }
-      this.x += this.vx;
-      this.y += this.vy;
     }
+
+    if (millis() - this.cooldown_mover >= 1500) {
+      this.cooldown_mover = millis();
+      this.vx = random(-5, 5);
+      this.vy = random(-8, 8);
+    }
+    if (Math.sign(this.vx) === 1) {
+      // MUDAR SPRITE PARA ESQUERDA
+      this.img = this.sprites.esquerda;
+    } else {
+      // MUDAR SPRITE PARA DIREITA
+      this.img = this.sprites.direita;
+    }
+    this.x += this.vx;
+    if (Math.sign(this.vy) === 1) {
+      // MUDAR SPRITE PARA FRENTE
+      this.img = this.sprites.frente;
+    } else {
+      // MUDAR SPRITE PARA COSTAS
+      this.img = this.sprites.costas;
+    }
+    this.y += this.vy;
   }
 
   atacar() {
