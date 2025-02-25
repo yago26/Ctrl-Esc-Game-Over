@@ -6,18 +6,20 @@ class Perseguidor extends Inimigo {
 
     this.tamanhoColisao = { w: 96, h: 96 };
 
+    let nome = random(["henrique", "tony"]);
+
     this.sprites = {
       frente: loadImage(
-        "./assets/sprites/inimigos/perseguidor/perseguidor-frente.png"
+        "./assets/sprites/inimigos/perseguidor/"+nome+"/perseguidor-frente.png"
       ),
       direita: loadImage(
-        "./assets/sprites/inimigos/perseguidor/perseguidor-direita.png"
+        "./assets/sprites/inimigos/perseguidor/"+nome+"/perseguidor-direita.png"
       ),
       esquerda: loadImage(
-        "./assets/sprites/inimigos/perseguidor/perseguidor-esquerda.png"
+        "./assets/sprites/inimigos/perseguidor/"+nome+"/perseguidor-esquerda.png"
       ),
       costas: loadImage(
-        "./assets/sprites/inimigos/perseguidor/perseguidor-costas.png"
+        "./assets/sprites/inimigos/perseguidor/"+nome+"/perseguidor-costas.png"
       ),
     };
     this.img = this.sprites.frente;

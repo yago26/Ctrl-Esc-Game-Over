@@ -12,18 +12,20 @@ class Atirador extends Inimigo {
     this.cronometro_ultimoAtaque = millis();
     this.cooldown_atacar = random(1000, 2000);
 
+    let nome = random(["daniel", "vitor"]);
+
     this.sprites = {
       frente: loadImage(
-        "./assets/sprites/inimigos/atirador/atirador-frente.png"
+        "./assets/sprites/inimigos/atirador/"+nome+"/atirador-frente.png"
       ),
       direita: loadImage(
-        "./assets/sprites/inimigos/atirador/atirador-direita.png"
+        "./assets/sprites/inimigos/atirador/"+nome+"/atirador-direita.png"
       ),
       esquerda: loadImage(
-        "./assets/sprites/inimigos/atirador/atirador-esquerda.png"
+        "./assets/sprites/inimigos/atirador/"+nome+"/atirador-esquerda.png"
       ),
       costas: loadImage(
-        "./assets/sprites/inimigos/atirador/atirador-costas.png"
+        "./assets/sprites/inimigos/atirador/"+nome+"/atirador-costas.png"
       ),
     };
     this.img = this.sprites.frente;
